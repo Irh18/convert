@@ -1,0 +1,791 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>File Processor - Samurai Mobile</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(180deg, #1f2523 0%, #2e2e2e 100%);
+            min-height: 100vh;
+            font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            color: #d9d9d9;
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-sizing: border-box;
+            padding-bottom: 68px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            margin: 20px 0;
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
+            padding: 16px;
+            background: #2a2a2a;
+            border: 1px solid #4a3727;
+            border-radius: 12px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
+            padding-bottom: 80px;
+        }
+
+        .container.loaded {
+            opacity: 1;
+        }
+
+        h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #d9d9d9;
+            text-align: center;
+            margin: 0 0 16px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-container {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #2a2a2a;
+            border: 1px solid #4a3727;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            position: relative;
+            box-sizing: border-box;
+            overflow: hidden;
+        }
+
+        .input-container input[type="file"] {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: #d9d9d9;
+            font-size: 14px;
+            cursor: pointer;
+            padding: 0;
+            margin: 0;
+            box-sizing: border-box;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .input-container input[type="file"]::-webkit-file-upload-button {
+            background: linear-gradient(45deg, #7f2b2b, #a13a3a);
+            border: none;
+            padding: 8px 12px;
+            border-radius: 8px;
+            color: #f5e6c3;
+            font-size: 13px;
+            cursor: pointer;
+            transition: background 0.3s;
+            margin-right: 8px;
+        }
+
+        .input-container input[type="file"]::-webkit-file-upload-button:hover {
+            background: linear-gradient(45deg, #a13a3a, #c44a4a);
+        }
+
+        .name-input-container {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #2a2a2a;
+            border: 1px solid #4a3727;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
+        }
+
+        .name-input-container input[type="text"] {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: #d9d9d9;
+            font-size: 14px;
+            padding: 8px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .name-input-container input[type="text"]::placeholder {
+            color: #8b8b8b;
+        }
+
+        .action-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #2a2a2a;
+            border: 1px solid #4a3727;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+            cursor: pointer;
+            position: relative;
+            box-sizing: border-box;
+            color: #d9d9d9;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .action-button:hover {
+            background: #3a3a3a;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            animation: bounce 0.4s ease;
+        }
+
+        .action-button:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-button.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-4px);
+            }
+        }
+
+        .action-button::after {
+            content: '↪';
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%) rotate(0deg);
+            font-size: 14px;
+            color: #b89778;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .action-button:hover::after {
+            opacity: 1;
+            transform: translateY(-50%) rotate(360deg);
+        }
+
+        .icon {
+            width: 36px;
+            height: 36px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #7f2b2b, #a13a3a);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .icon::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 10%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .action-button:hover .icon {
+            transform: rotate(10deg) scale(1.1);
+        }
+
+        .action-button:hover .icon::before {
+            opacity: 1;
+        }
+
+        .icon i {
+            font-size: 20px;
+            color: #f5e6c3;
+            z-index: 1;
+        }
+
+        .progress-container {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #2a2a2a;
+            border: 1px solid #4a3727;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
+            display: none;
+            text-align: center;
+        }
+
+        .progress-container.active {
+            display: block;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: #d9d9d9;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #1f2523;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #b89778, #d4af37);
+            transition: width 0.3s ease;
+        }
+
+        .result-container {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .result-item {
+            margin-bottom: 10px;
+            background: #2a2a2a;
+            border: 1px solid #4a3727;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
+        }
+
+        .result-item a {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #2a2a2a;
+            border: 1px solid #4a3727;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+            cursor: pointer;
+            color: #d9d9d9;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .result-item a:hover {
+            background: #3a3a3a;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            animation: bounce 0.4s ease;
+        }
+
+        .result-item a:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .download-all-button {
+            display: none;
+            width: 100%;
+            padding: 12px;
+            margin-top: 10px;
+            background: #2a2a2a;
+            border: 1px solid #4a3727;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+            cursor: pointer;
+            color: #d9d9d9;
+            font-size: 15px;
+            font-weight: 600;
+            text-align: center;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .download-all-button.active {
+            display: block;
+        }
+
+        .download-all-button:hover {
+            background: #3a3a3a;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            animation: bounce 0.4s ease;
+        }
+
+        .download-all-button:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .download-all-button::after {
+            content: '↪';
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%) rotate(0deg);
+            font-size: 14px;
+            color: #b89778;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .download-all-button:hover::after {
+            opacity: 1;
+            transform: translateY(-50%) rotate(360deg);
+        }
+
+        .bottom-bar {
+            position: fixed;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            display: flex;
+            justify-content: space-around;
+            background: #2a2a2a;
+            border-top: 1px solid #4a3727;
+            padding: 10px 0;
+            box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
+            z-index: 1000;
+        }
+
+        .bottom-bar-button {
+            background: #2a2a2a;
+            border: 1px solid #4a3727;
+            border-radius: 8px;
+            width: 48px;
+            height: 48px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+            cursor: pointer;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .bottom-bar-button:hover {
+            background: #3a3a3a;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            animation: bounce 0.4s ease;
+        }
+
+        .bottom-bar-button:active {
+            transform: scale(0.95);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .bottom-bar-button.active {
+            background: linear-gradient(45deg, #7f2b2b, #a13a3a);
+        }
+
+        .bottom-bar-button i {
+            font-size: 24px;
+            color: #f5e6c3;
+        }
+
+        .bottom-bar-button.active i {
+            color: #d9d9d9;
+        }
+
+        .bottom-bar-button::after {
+            content: '';
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #b89778, #d4af37);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .bottom-bar-button.active::after,
+        .bottom-bar-button:hover::after {
+            transform: scaleX(1);
+        }
+
+        .underline {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #b89778, #d4af37);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .action-button:hover .underline,
+        .result-item a:hover .underline,
+        .download-all-button:hover .underline {
+            transform: scaleX(1);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(31, 37, 35, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            position: relative;
+        }
+
+        .loader::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px solid transparent;
+            border-top-color: #a13a3a;
+            border-right-color: #7f2b2b;
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+        }
+
+        .loader::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px solid transparent;
+            border-top-color: #b89778;
+            border-radius: 50%;
+            animation: spin 2s linear infinite reverse;
+            opacity: 0.6;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        #convertSection, #renameSection {
+            display: none;
+        }
+
+        #convertSection.active, #renameSection.active {
+            display: block;
+        }
+
+        @media (min-width: 401px) {
+            body {
+                align-items: center;
+            }
+            .container {
+                margin: 20px auto;
+            }
+            .bottom-bar {
+                left: 50%;
+                transform: translateX(-50%);
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay">
+        <div class="loader"></div>
+    </div>
+    <div class="container">
+        <div id="convertSection" class="active">
+            <h2>HEIC to JPG Converter</h2>
+            <div class="input-container">
+                <input type="file" id="heicInput" accept=".heic,.HEIC" multiple />
+            </div>
+            <button class="action-button" id="convertButton">
+                <div class="icon">
+                    <i class="bi bi-arrow-right-circle"></i>
+                </div>
+                Convert to JPG
+                <div class="underline"></div>
+            </button>
+            <div class="progress-container" id="convertProgressContainer">
+                <div class="progress-text" id="convertProgressText">Converting... 0%</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="convertProgressFill"></div>
+                </div>
+            </div>
+            <div class="result-container" id="convertResultContainer"></div>
+            <button class="download-all-button" id="convertDownloadAllButton">
+                Download All
+                <div class="underline"></div>
+            </button>
+        </div>
+        <div id="renameSection">
+            <h2>File Renamer</h2>
+            <div class="name-input-container">
+                <input type="text" id="nameInput" placeholder="Enter base file name (e.g., Photo)" />
+            </div>
+            <div class="input-container">
+                <input type="file" id="fileInput" multiple />
+            </div>
+            <button class="action-button" id="renameButton">
+                <div class="icon">
+                    <i class="bi bi-pencil-square"></i>
+                </div>
+                Rename Files
+                <div class="underline"></div>
+            </button>
+            <div class="progress-container" id="renameProgressContainer">
+                <div class="progress-text" id="renameProgressText">Processing... 0%</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="renameProgressFill"></div>
+                </div>
+            </div>
+            <div class="result-container" id="renameResultContainer"></div>
+            <button class="download-all-button" id="renameDownloadAllButton">
+                Download All
+                <div class="underline"></div>
+            </button>
+        </div>
+    </div>
+    <div class="bottom-bar">
+        <button class="bottom-bar-button active" id="showConvert">
+            <i class="bi bi-arrow-right-circle"></i>
+            <div class="underline"></div>
+        </button>
+        <button class="bottom-bar-button" id="showRename">
+            <i class="bi bi-pencil-square"></i>
+            <div class="underline"></div>
+        </button>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/heic2any/0.0.4/heic2any.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.querySelector('.loading-overlay').classList.add('hidden');
+                document.querySelector('.container').classList.add('loaded');
+            }, 1500);
+        });
+
+        // Bottom bar navigation
+        const convertSection = document.getElementById('convertSection');
+        const renameSection = document.getElementById('renameSection');
+        const showConvert = document.getElementById('showConvert');
+        const showRename = document.getElementById('showRename');
+
+        showConvert.addEventListener('click', () => {
+            convertSection.classList.add('active');
+            renameSection.classList.remove('active');
+            showConvert.classList.add('active');
+            showRename.classList.remove('active');
+        });
+
+        showRename.addEventListener('click', () => {
+            renameSection.classList.add('active');
+            convertSection.classList.remove('active');
+            showRename.classList.add('active');
+            showConvert.classList.remove('active');
+        });
+
+        // Convert HEIC to JPG
+        async function convertHEIC() {
+            const input = document.getElementById('heicInput');
+            const progressContainer = document.getElementById('convertProgressContainer');
+            const progressText = document.getElementById('convertProgressText');
+            const progressFill = document.getElementById('convertProgressFill');
+            const resultContainer = document.getElementById('convertResultContainer');
+            const convertButton = document.getElementById('convertButton');
+            const downloadAllButton = document.getElementById('convertDownloadAllButton');
+            
+            if (!input.files || input.files.length === 0) {
+                alert('Please select at least one HEIC file!');
+                return;
+            }
+
+            convertButton.classList.add('disabled');
+            progressContainer.classList.add('active');
+            resultContainer.innerHTML = '';
+            downloadAllButton.classList.remove('active');
+
+            const files = Array.from(input.files);
+            const convertedFiles = [];
+            let completed = 0;
+
+            try {
+                for (const heicFile of files) {
+                    const jpgBlob = await heic2any({
+                        blob: heicFile,
+                        toType: 'image/jpeg',
+                        quality: 1
+                    });
+
+                    completed++;
+                    const progress = Math.round((completed / files.length) * 100);
+                    progressText.textContent = `Converting... ${progress}%`;
+                    progressFill.style.width = `${progress}%`;
+
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'result-item';
+
+                    const downloadLink = document.createElement('a');
+                    const url = URL.createObjectURL(jpgBlob);
+                    const fileName = heicFile.name.replace(/\.heic$/i, '.jpg');
+                    downloadLink.href = url;
+                    downloadLink.download = fileName;
+                    downloadLink.textContent = `Download ${fileName}`;
+                    downloadLink.innerHTML += '<div class="underline"></div>';
+                    resultItem.appendChild(downloadLink);
+
+                    resultContainer.appendChild(resultItem);
+                    convertedFiles.push({ blob: jpgBlob, name: fileName });
+                }
+
+                downloadAllButton.classList.add('active');
+                downloadAllButton.onclick = async () => {
+                    const zip = new JSZip();
+                    convertedFiles.forEach(file => {
+                        zip.file(file.name, file.blob);
+                    });
+
+                    const zipBlob = await zip.generateAsync({ type: 'blob' });
+                    const zipUrl = URL.createObjectURL(zipBlob);
+                    const zipLink = document.createElement('a');
+                    zipLink.href = zipUrl;
+                    zipLink.download = 'converted_images.zip';
+                    zipLink.click();
+                    URL.revokeObjectURL(zipUrl);
+                };
+            } catch (error) {
+                console.error('Conversion error:', error);
+                alert('Error converting one or more files. Please try again.');
+            } finally {
+                progressContainer.classList.remove('active');
+                convertButton.classList.remove('disabled');
+            }
+        }
+
+        // Rename Files
+        async function renameFiles() {
+            const nameInput = document.getElementById('nameInput');
+            const fileInput = document.getElementById('fileInput');
+            const progressContainer = document.getElementById('renameProgressContainer');
+            const progressText = document.getElementById('renameProgressText');
+            const progressFill = document.getElementById('renameProgressFill');
+            const resultContainer = document.getElementById('renameResultContainer');
+            const renameButton = document.getElementById('renameButton');
+            const downloadAllButton = document.getElementById('renameDownloadAllButton');
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert('Please select at least one file!');
+                return;
+            }
+
+            let baseName = nameInput.value.trim();
+            if (!baseName) {
+                baseName = 'File';
+            }
+
+            renameButton.classList.add('disabled');
+            progressContainer.classList.add('active');
+            resultContainer.innerHTML = '';
+            downloadAllButton.classList.remove('active');
+
+            const files = Array.from(fileInput.files);
+            const renamedFiles = [];
+            let completed = 0;
+
+            try {
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const extension = file.name.split('.').pop();
+                    const newName = `${baseName} ${i + 1}.${extension}`;
+
+                    completed++;
+                    const progress = Math.round((completed / files.length) * 100);
+                    progressText.textContent = `Processing... ${progress}%`;
+                    progressFill.style.width = `${progress}%`;
+
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'result-item';
+
+                    const downloadLink = document.createElement('a');
+                    const url = URL.createObjectURL(file);
+                    downloadLink.href = url;
+                    downloadLink.download = newName;
+                    downloadLink.textContent = `Download ${newName}`;
+                    downloadLink.innerHTML += '<div class="underline"></div>';
+                    resultItem.appendChild(downloadLink);
+
+                    resultContainer.appendChild(resultItem);
+                    renamedFiles.push({ blob: file, name: newName });
+                }
+
+                downloadAllButton.classList.add('active');
+                downloadAllButton.onclick = async () => {
+                    const zip = new JSZip();
+                    renamedFiles.forEach(file => {
+                        zip.file(file.name, file.blob);
+                    });
+
+                    const zipBlob = await zip.generateAsync({ type: 'blob' });
+                    const zipUrl = URL.createObjectURL(zipBlob);
+                    const zipLink = document.createElement('a');
+                    zipLink.href = zipUrl;
+                    zipLink.download = 'renamed_files.zip';
+                    zipLink.click();
+                    URL.revokeObjectURL(zipUrl);
+                };
+            } catch (error) {
+                console.error('Processing error:', error);
+                alert('Error processing one or more files. Please try again.');
+            } finally {
+                progressContainer.classList.remove('active');
+                renameButton.classList.remove('disabled');
+            }
+        }
+
+        document.getElementById('convertButton').addEventListener('click', convertHEIC);
+        document.getElementById('renameButton').addEventListener('click', renameFiles);
+    </script>
+</body>
+</html>
