@@ -54,11 +54,11 @@
 
         .input-container {
             width: 100%;
-            height: 100px; /* Diperbesar */
+            height: 100px;
             padding: 16px;
             margin-bottom: 10px;
             background: #2a2a2a;
-            border: 2px dashed #4a3727; /* Garis putus-putus untuk area drop */
+            border: 2px dashed #4a3727;
             border-radius: 10px;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
             position: relative;
@@ -92,14 +92,14 @@
             position: absolute;
             width: 100%;
             height: 100%;
-            opacity: 0; /* Sembunyikan input */
+            opacity: 0;
             cursor: pointer;
             top: 0;
             left: 0;
         }
 
         .input-container input[type="file"]::-webkit-file-upload-button {
-            display: none; /* Hilangkan tombol default */
+            display: none;
         }
 
         .name-input-container {
@@ -552,6 +552,13 @@
                 Convert to JPG
                 <div class="underline"></div>
             </button>
+            <button class="action-button" id="convertResetButton">
+                <div class="icon">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </div>
+                Bersihkan
+                <div class="underline"></div>
+            </button>
             <div class="progress-container" id="convertProgressContainer">
                 <div class="progress-text" id="convertProgressText">Mengonversi... 0%</div>
                 <div class="progress-bar">
@@ -560,7 +567,11 @@
             </div>
             <div class="result-container" id="convertResultContainer"></div>
             <button class="download-all-button" id="convertDownloadAllButton">
-                Unduh Semua
+                Unduh Semua (ZIP)
+                <div class="underline"></div>
+            </button>
+            <button class="download-all-button" id="convertDownloadAllNoZipButton">
+                Unduh Semua (Tanpa ZIP)
                 <div class="underline"></div>
             </button>
         </div>
@@ -579,6 +590,13 @@
                 Ganti Nama File
                 <div class="underline"></div>
             </button>
+            <button class="action-button" id="renameResetButton">
+                <div class="icon">
+                    <i class="bi bi-arrow-clockwise"></i>
+                </div>
+                Bersihkan
+                <div class="underline"></div>
+            </button>
             <div class="progress-container" id="renameProgressContainer">
                 <div class="progress-text" id="renameProgressText">Memproses... 0%</div>
                 <div class="progress-bar">
@@ -587,7 +605,11 @@
             </div>
             <div class="result-container" id="renameResultContainer"></div>
             <button class="download-all-button" id="renameDownloadAllButton">
-                Unduh Semua
+                Unduh Semua (ZIP)
+                <div class="underline"></div>
+            </button>
+            <button class="download-all-button" id="renameDownloadAllNoZipButton">
+                Unduh Semua (Tanpa ZIP)
                 <div class="underline"></div>
             </button>
         </div>
@@ -638,7 +660,6 @@
         inputContainers.forEach(container => {
             const fileInput = container.querySelector('input[type="file"]');
 
-            // Handle drag events
             container.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 container.classList.add('dragover');
@@ -657,11 +678,42 @@
                 }
             });
 
-            // Handle click to trigger file input
             container.addEventListener('click', () => {
                 fileInput.click();
             });
         });
+
+        // Reset functionality for Convert section
+        function resetConvertSection() {
+            const heicInput = document.getElementById('heicInput');
+            const convertProgressContainer = document.getElementById('convertProgressContainer');
+            const convertResultContainer = document.getElementById('convertResultContainer');
+            const convertDownloadAllButton = document.getElementById('convertDownloadAllButton');
+            const convertDownloadAllNoZipButton = document.getElementById('convertDownloadAllNoZipButton');
+            
+            heicInput.value = '';
+            convertProgressContainer.classList.remove('active');
+            convertResultContainer.innerHTML = '';
+            convertDownloadAllButton.classList.remove('active');
+            convertDownloadAllNoZipButton.classList.remove('active');
+        }
+
+        // Reset functionality for Rename section
+        function resetRenameSection() {
+            const nameInput = document.getElementById('nameInput');
+            const fileInput = document.getElementById('fileInput');
+            const renameProgressContainer = document.getElementById('renameProgressContainer');
+            const renameResultContainer = document.getElementById('renameResultContainer');
+            const renameDownloadAllButton = document.getElementById('renameDownloadAllButton');
+            const renameDownloadAllNoZipButton = document.getElementById('renameDownloadAllNoZipButton');
+            
+            nameInput.value = '';
+            fileInput.value = '';
+            renameProgressContainer.classList.remove('active');
+            renameResultContainer.innerHTML = '';
+            renameDownloadAllButton.classList.remove('active');
+            renameDownloadAllNoZipButton.classList.remove('active');
+        }
 
         // Convert HEIC and WebP to JPG
         async function convertHEIC() {
@@ -672,6 +724,7 @@
             const resultContainer = document.getElementById('convertResultContainer');
             const convertButton = document.getElementById('convertButton');
             const downloadAllButton = document.getElementById('convertDownloadAllButton');
+            const downloadAllNoZipButton = document.getElementById('convertDownloadAllNoZipButton');
             
             if (!input.files || input.files.length === 0) {
                 alert('Harap pilih setidaknya satu file HEIC atau WebP!');
@@ -682,6 +735,7 @@
             progressContainer.classList.add('active');
             resultContainer.innerHTML = '';
             downloadAllButton.classList.remove('active');
+            downloadAllNoZipButton.classList.remove('active');
 
             const files = Array.from(input.files);
             const convertedFiles = [];
@@ -693,39 +747,33 @@
                     const fileName = file.name.toLowerCase();
                     
                     if (fileName.endsWith('.heic')) {
-                        // Konversi file HEIC menggunakan heic2any
                         jpgBlob = await heic2any({
                             blob: file,
                             toType: 'image/jpeg',
                             quality: 1
                         });
                     } else if (fileName.endsWith('.webp')) {
-                        // Konversi file WebP menggunakan canvas
                         const img = new Image();
                         const url = URL.createObjectURL(file);
                         
-                        // Tunggu sampai gambar dimuat
                         await new Promise((resolve, reject) => {
                             img.onload = resolve;
                             img.onerror = reject;
                             img.src = url;
                         });
 
-                        // Buat canvas untuk menggambar gambar
                         const canvas = document.createElement('canvas');
                         canvas.width = img.width;
                         canvas.height = img.height;
                         const ctx = canvas.getContext('2d');
                         ctx.drawImage(img, 0, 0);
 
-                        // Konversi ke JPG
                         jpgBlob = await new Promise(resolve => {
                             canvas.toBlob(resolve, 'image/jpeg', 1);
                         });
 
                         URL.revokeObjectURL(url);
                     } else {
-                        // Lewati file yang tidak didukung
                         continue;
                     }
 
@@ -766,6 +814,18 @@
                         zipLink.click();
                         URL.revokeObjectURL(zipUrl);
                     };
+
+                    downloadAllNoZipButton.classList.add('active');
+                    downloadAllNoZipButton.onclick = () => {
+                        convertedFiles.forEach(file => {
+                            const link = document.createElement('a');
+                            const url = URL.createObjectURL(file.blob);
+                            link.href = url;
+                            link.download = file.name;
+                            link.click();
+                            setTimeout(() => URL.revokeObjectURL(url), 100);
+                        });
+                    };
                 } else {
                     alert('Tidak ada file HEIC atau WebP yang valid untuk dikonversi.');
                 }
@@ -788,6 +848,7 @@
             const resultContainer = document.getElementById('renameResultContainer');
             const renameButton = document.getElementById('renameButton');
             const downloadAllButton = document.getElementById('renameDownloadAllButton');
+            const downloadAllNoZipButton = document.getElementById('renameDownloadAllNoZipButton');
             
             if (!fileInput.files || fileInput.files.length === 0) {
                 alert('Harap pilih setidaknya satu file!');
@@ -803,6 +864,7 @@
             progressContainer.classList.add('active');
             resultContainer.innerHTML = '';
             downloadAllButton.classList.remove('active');
+            downloadAllNoZipButton.classList.remove('active');
 
             const files = Array.from(fileInput.files);
             const renamedFiles = [];
@@ -849,6 +911,18 @@
                     zipLink.click();
                     URL.revokeObjectURL(zipUrl);
                 };
+
+                downloadAllNoZipButton.classList.add('active');
+                downloadAllNoZipButton.onclick = () => {
+                    renamedFiles.forEach(file => {
+                        const link = document.createElement('a');
+                        const url = URL.createObjectURL(file.blob);
+                        link.href = url;
+                        link.download = file.name;
+                        link.click();
+                        setTimeout(() => URL.revokeObjectURL(url), 100);
+                    });
+                };
             } catch (error) {
                 console.error('Kesalahan pemrosesan:', error);
                 alert('Terjadi kesalahan saat memproses satu atau lebih file. Silakan coba lagi.');
@@ -860,6 +934,8 @@
 
         document.getElementById('convertButton').addEventListener('click', convertHEIC);
         document.getElementById('renameButton').addEventListener('click', renameFiles);
+        document.getElementById('convertResetButton').addEventListener('click', resetConvertSection);
+        document.getElementById('renameResetButton').addEventListener('click', resetRenameSection);
     </script>
 </body>
 </html>
