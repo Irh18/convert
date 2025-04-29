@@ -448,6 +448,38 @@
             transform: scaleX(1);
         }
 
+        .visitor-counter {
+            position: fixed;
+            bottom: 68px;
+            left: 0;
+            width: 100%;
+            max-width: 400px;
+            margin: 0 auto;
+            background: #2a2a2a;
+            border-top: 1px solid #4a3727;
+            border-bottom: 1px solid #4a3727;
+            padding: 8px 16px;
+            box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.2);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #d9d9d9;
+            font-size: 14px;
+            font-weight: 600;
+            z-index: 999;
+            box-sizing: border-box;
+        }
+
+        .visitor-counter i {
+            margin-right: 8px;
+            font-size: 16px;
+            color: #f5e6c3;
+        }
+
+        .visitor-counter span {
+            color: #b89778;
+        }
+
         .loading-overlay {
             position: fixed;
             top: 0;
@@ -526,6 +558,10 @@
                 left: 50%;
                 transform: translateX(-50%);
             }
+            .visitor-counter {
+                left: 50%;
+                transform: translateX(-50%);
+            }
         }
     </style>
 </head>
@@ -586,6 +622,10 @@
             </button>
         </div>
     </div>
+    <div class="visitor-counter">
+        <i class="bi bi-eye"></i>
+        <span id="visitorCount">0</span> Visitors
+    </div>
     <div class="bottom-bar">
         <button class="bottom-bar-button active" id="showConvert">
             <i class="bi bi-arrow-right-circle"></i>
@@ -606,6 +646,17 @@
                 document.querySelector('.container').classList.add('loaded');
             }, 1500);
         });
+
+        // Simulate visitor count
+        function updateVisitorCount() {
+            const visitorCount = document.getElementById('visitorCount');
+            const randomCount = Math.floor(Math.random() * 100) + 1; // Simulate 1-100 visitors
+            visitorCount.textContent = randomCount;
+        }
+
+        // Update visitor count initially and every 10 seconds
+        updateVisitorCount();
+        setInterval(updateVisitorCount, 10000);
 
         // Bottom bar navigation
         const convertSection = document.getElementById('convertSection');
