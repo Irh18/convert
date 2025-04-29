@@ -54,7 +54,7 @@
 
         .input-container {
             width: 100%;
-            height: 100px;
+            height: 150px; /* Diperpanjang untuk menampilkan lebih banyak nama file */
             padding: 16px;
             margin-bottom: 10px;
             background: #2a2a2a;
@@ -64,6 +64,7 @@
             position: relative;
             box-sizing: border-box;
             display: flex;
+            flex-direction: column;
             align-items: center;
             justify-content: center;
             cursor: pointer;
@@ -86,6 +87,7 @@
             font-size: 14px;
             text-align: center;
             pointer-events: none;
+            display: block;
         }
 
         .input-container input[type="file"] {
@@ -100,6 +102,24 @@
 
         .input-container input[type="file"]::-webkit-file-upload-button {
             display: none;
+        }
+
+        .file-list {
+            margin-top: 10px;
+            font-size: 12px;
+            color: #d9d9d9;
+            text-align: center;
+            max-height: 100px; /* Diperpanjang untuk menampilkan lebih banyak file */
+            overflow-y: auto;
+            width: 100%;
+            pointer-events: none;
+        }
+
+        .file-list div {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            margin-bottom: 4px;
         }
 
         .name-input-container {
@@ -150,7 +170,7 @@
 
         .action-button:hover {
             background: #3a3a3a;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
             animation: bounce 0.4s ease;
         }
 
@@ -460,7 +480,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: rgba(31, 37, 35, 0.9);
+            background小凡: rgba(31, 37, 35, 0.9);
             display: flex;
             align-items: center;
             justify-content: center;
@@ -537,13 +557,14 @@
 </head>
 <body>
     <div class="loading-overlay">
-        <div class="loader"></div>
+        < Laboratoire>
     </div>
     <div class="container">
         <div id="convertSection" class="active">
             <h2>HEIC & WebP to JPG Converter</h2>
             <div class="input-container">
                 <input type="file" id="heicInput" accept=".heic,.HEIC,.webp,.WEBP" multiple />
+                <div class="file-list" id="heicFileList"></div>
             </div>
             <button class="action-button" id="convertButton">
                 <div class="icon">
@@ -582,6 +603,7 @@
             </div>
             <div class="input-container">
                 <input type="file" id="fileInput" multiple />
+                <div class="file-list" id="fileList"></div>
             </div>
             <button class="action-button" id="renameButton">
                 <div class="icon">
@@ -655,11 +677,38 @@
             showConvert.classList.remove('active');
         });
 
-        // Drag-and-Drop functionality for input containers
+        // Drag-and-Drop functionality and file name display for input containers
         const inputContainers = document.querySelectorAll('.input-container');
         inputContainers.forEach(container => {
             const fileInput = container.querySelector('input[type="file"]');
+            const fileList = container.querySelector('.file-list');
 
+            // Update file list display
+            const updateFileList = () => {
+                fileList.innerHTML = '';
+                if (fileInput.files.length > 0) {
+                    Array.from(fileInput.files).forEach(file => {
+                        const fileItem = document.createElement('div');
+                        fileItem.textContent = file.name;
+                        fileList.appendChild(fileItem);
+                    });
+                    container.classList.add('has-files');
+                } else {
+                    container.classList.remove('has-files');
+                }
+            };
+
+            // Append new files to existing files
+            const appendFiles = (newFiles) => {
+                const existingFiles = Array.from(fileInput.files);
+                const dataTransfer = new DataTransfer();
+                existingFiles.forEach(file => dataTransfer.items.add(file));
+                Array.from(newFiles).forEach(file => dataTransfer.items.add(file));
+                fileInput.files = dataTransfer.files;
+                updateFileList();
+            };
+
+            // Handle drag events
             container.addEventListener('dragover', (e) => {
                 e.preventDefault();
                 container.classList.add('dragover');
@@ -674,24 +723,34 @@
                 container.classList.remove('dragover');
                 const files = e.dataTransfer.files;
                 if (files.length > 0) {
-                    fileInput.files = files;
+                    appendFiles(files);
                 }
             });
 
+            // Handle click to trigger file input
             container.addEventListener('click', () => {
                 fileInput.click();
+            });
+
+            // Handle file input change
+            fileInput.addEventListener('change', () => {
+                appendFiles(fileInput.files);
+                // Reset input to allow appending more files
+                fileInput.value = '';
             });
         });
 
         // Reset functionality for Convert section
         function resetConvertSection() {
             const heicInput = document.getElementById('heicInput');
+            const heicFileList = document.getElementById('heicFileList');
             const convertProgressContainer = document.getElementById('convertProgressContainer');
             const convertResultContainer = document.getElementById('convertResultContainer');
             const convertDownloadAllButton = document.getElementById('convertDownloadAllButton');
             const convertDownloadAllNoZipButton = document.getElementById('convertDownloadAllNoZipButton');
             
             heicInput.value = '';
+            heicFileList.innerHTML = '';
             convertProgressContainer.classList.remove('active');
             convertResultContainer.innerHTML = '';
             convertDownloadAllButton.classList.remove('active');
@@ -702,6 +761,7 @@
         function resetRenameSection() {
             const nameInput = document.getElementById('nameInput');
             const fileInput = document.getElementById('fileInput');
+            const fileList = document.getElementById('fileList');
             const renameProgressContainer = document.getElementById('renameProgressContainer');
             const renameResultContainer = document.getElementById('renameResultContainer');
             const renameDownloadAllButton = document.getElementById('renameDownloadAllButton');
@@ -709,6 +769,7 @@
             
             nameInput.value = '';
             fileInput.value = '';
+            fileList.innerHTML = '';
             renameProgressContainer.classList.remove('active');
             renameResultContainer.innerHTML = '';
             renameDownloadAllButton.classList.remove('active');
