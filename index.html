@@ -63,37 +63,59 @@
             position: relative;
             box-sizing: border-box;
             overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
         }
 
         .input-container input[type="file"] {
+            opacity: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
             width: 100%;
-            background: transparent;
-            border: none;
-            color: #d9d9d9;
-            font-size: 14px;
+            height: 100%;
             cursor: pointer;
-            padding: 0;
-            margin: 0;
-            box-sizing: border-box;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
+        }
+
+        .input-container label {
+            display: block;
+            font-size: 14px;
+            color: #d9d9d9;
+            padding: 8px;
+            text-align: center;
+            border: 1px dashed #4a3727;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .input-container label:hover {
+            background: #3a3a3a;
         }
 
         .input-container input[type="file"]::-webkit-file-upload-button {
-            background: linear-gradient(45deg, #7f2b2b, #a13a3a);
-            border: none;
-            padding: 8px 12px;
-            border-radius: 8px;
-            color: #f5e6c3;
-            font-size: 13px;
-            cursor: pointer;
-            transition: background 0.3s;
-            margin-right: 8px;
+            display: none;
         }
 
-        .input-container input[type="file"]::-webkit-file-upload-button:hover {
-            background: linear-gradient(45deg, #a13a3a, #c44a4a);
+        .file-list {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #d9d9d9;
+        }
+
+        .file-list div {
+            padding: 4px 8px;
+            background: #1f2523;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            word-break: break-all;
+        }
+
+        .file-count {
+            font-size: 13px;
+            color: #b89778;
+            text-align: center;
         }
 
         .name-input-container {
@@ -158,6 +180,37 @@
             pointer-events: none;
         }
 
+        .clear-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #2a2a2a;
+            border: 1px solid #4a3727;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+            cursor: pointer;
+            position: relative;
+            box-sizing: border-box;
+            color: #d9d9d9;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .clear-button:hover {
+            background: #3a3a3a;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            animation: bounce 0.4s ease;
+        }
+
+        .clear-button:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
         @keyframes bounce {
             0%, 100% {
                 transform: translateY(0);
@@ -167,7 +220,7 @@
             }
         }
 
-        .action-button::after {
+        .action-button::after, .clear-button::after {
             content: '↪';
             position: absolute;
             right: 12px;
@@ -179,7 +232,7 @@
             transition: opacity 0.3s, transform 0.3s;
         }
 
-        .action-button:hover::after {
+        .action-button:hover::after, .clear-button:hover::after {
             opacity: 1;
             transform: translateY(-50%) rotate(360deg);
         }
@@ -208,11 +261,11 @@
             transition: opacity 0.3s;
         }
 
-        .action-button:hover .icon {
+        .action-button:hover .icon, .clear-button:hover .icon {
             transform: rotate(10deg) scale(1.1);
         }
 
-        .action-button:hover .icon::before {
+        .action-button:hover .icon::before, .clear-button:hover .icon::before {
             opacity: 1;
         }
 
@@ -305,11 +358,16 @@
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
 
-        .download-all-button {
-            display: none;
-            width: 100%;
-            padding: 12px;
+        .download-buttons-container {
+            display: flex;
+            gap: 10px;
             margin-top: 10px;
+        }
+
+        .download-all-button, .download-all-files-button {
+            display: none;
+            flex: 1;
+            padding: 12px;
             background: #2a2a2a;
             border: 1px solid #4a3727;
             border-radius: 10px;
@@ -324,22 +382,22 @@
             box-sizing: border-box;
         }
 
-        .download-all-button.active {
+        .download-all-button.active, .download-all-files-button.active {
             display: block;
         }
 
-        .download-all-button:hover {
+        .download-all-button:hover, .download-all-files-button:hover {
             background: #3a3a3a;
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
             animation: bounce 0.4s ease;
         }
 
-        .download-all-button:active {
+        .download-all-button:active, .download-all-files-button:active {
             transform: scale(0.98);
             box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
         }
 
-        .download-all-button::after {
+        .download-all-button::after, .download-all-files-button::after {
             content: '↪';
             position: absolute;
             right: 12px;
@@ -351,7 +409,7 @@
             transition: opacity 0.3s, transform 0.3s;
         }
 
-        .download-all-button:hover::after {
+        .download-all-button:hover::after, .download-all-files-button:hover::after {
             opacity: 1;
             transform: translateY(-50%) rotate(360deg);
         }
@@ -443,8 +501,10 @@
         }
 
         .action-button:hover .underline,
+        .clear-button:hover .underline,
         .result-item a:hover .underline,
-        .download-all-button:hover .underline {
+        .download-all-button:hover .underline,
+        .download-all-files-button:hover .underline {
             transform: scaleX(1);
         }
 
@@ -537,8 +597,18 @@
         <div id="convertSection" class="active">
             <h2>HEIC & WebP to JPG Converter</h2>
             <div class="input-container">
+                <label for="heicInput">Silahkan masukkan file anda</label>
                 <input type="file" id="heicInput" accept=".heic,.HEIC,.webp,.WEBP" multiple />
+                <div class="file-count" id="heicFileCount">0 file diupload</div>
+                <div class="file-list" id="heicFileList"></div>
             </div>
+            <button class="clear-button" id="clearConvertButton">
+                <div class="icon">
+                    <i class="bi bi-trash"></i>
+                </div>
+                Bersihkan
+                <div class="underline"></div>
+            </button>
             <button class="action-button" id="convertButton">
                 <div class="icon">
                     <i class="bi bi-arrow-right-circle"></i>
@@ -553,10 +623,16 @@
                 </div>
             </div>
             <div class="result-container" id="convertResultContainer"></div>
-            <button class="download-all-button" id="convertDownloadAllButton">
-                Unduh Semua
-                <div class="underline"></div>
-            </button>
+            <div class="download-buttons-container">
+                <button class="download-all-button" id="convertDownloadAllButton">
+                    Unduh Semua (ZIP)
+                    <div class="underline"></div>
+                </button>
+                <button class="download-all-files-button" id="convertDownloadAllFilesButton">
+                    Unduh Semua File
+                    <div class="underline"></div>
+                </button>
+            </div>
         </div>
         <div id="renameSection">
             <h2>File Renamer</h2>
@@ -564,8 +640,18 @@
                 <input type="text" id="nameInput" placeholder="Masukkan nama dasar file (misal, Foto)" />
             </div>
             <div class="input-container">
+                <label for="fileInput">Silahkan masukkan file anda</label>
                 <input type="file" id="fileInput" multiple />
+                <div class="file-count" id="renameFileCount">0 file diupload</div>
+                <div class="file-list" id="renameFileList"></div>
             </div>
+            <button class="clear-button" id="clearRenameButton">
+                <div class="icon">
+                    <i class="bi bi-trash"></i>
+                </div>
+                Bersihkan
+                <div class="underline"></div>
+            </button>
             <button class="action-button" id="renameButton">
                 <div class="icon">
                     <i class="bi bi-pencil-square"></i>
@@ -580,10 +666,16 @@
                 </div>
             </div>
             <div class="result-container" id="renameResultContainer"></div>
-            <button class="download-all-button" id="renameDownloadAllButton">
-                Unduh Semua
-                <div class="underline"></div>
-            </button>
+            <div class="download-buttons-container">
+                <button class="download-all-button" id="renameDownloadAllButton">
+                    Unduh Semua (ZIP)
+                    <div class="underline"></div>
+                </button>
+                <button class="download-all-files-button" id="renameDownloadAllFilesButton">
+                    Unduh Semua File
+                    <div class="underline"></div>
+                </button>
+            </div>
         </div>
     </div>
     <div class="bottom-bar">
@@ -627,6 +719,77 @@
             showConvert.classList.remove('active');
         });
 
+        // Fungsi untuk menampilkan daftar nama file, jumlah file, dan validasi ekstensi
+        function displayFileNames(inputId, listId, countId) {
+            const input = document.getElementById(inputId);
+            const fileList = document.getElementById(listId);
+            const fileCount = document.getElementById(countId);
+            let allFiles = []; // Menyimpan semua file yang telah dipilih
+
+            input.addEventListener('change', () => {
+                const newFiles = Array.from(input.files);
+                const existingNames = new Set(allFiles.map(file => file.name));
+                const isHeicInput = inputId === 'heicInput';
+                let invalidFiles = [];
+
+                // Validasi ekstensi untuk heicInput
+                newFiles.forEach(file => {
+                    const fileName = file.name.toLowerCase();
+                    if (isHeicInput && !fileName.endsWith('.heic') && !fileName.endsWith('.webp')) {
+                        invalidFiles.push(file.name);
+                    } else if (!existingNames.has(file.name)) {
+                        allFiles.push(file);
+                        existingNames.add(file.name);
+                    }
+                });
+
+                // Tampilkan peringatan jika ada file tidak valid
+                if (invalidFiles.length > 0) {
+                    alert(`File berikut tidak valid (hanya .heic dan .webp yang diperbolehkan): ${invalidFiles.join(', ')}`);
+                }
+
+                // Perbarui tampilan daftar file
+                fileList.innerHTML = ''; // Kosongkan daftar untuk render ulang
+                allFiles.forEach(file => {
+                    const fileItem = document.createElement('div');
+                    fileItem.textContent = file.name;
+                    fileList.appendChild(fileItem);
+                });
+
+                // Perbarui jumlah file
+                fileCount.textContent = `${allFiles.length} file diupload`;
+
+                // Perbarui input.files dengan semua file yang valid
+                const dt = new DataTransfer();
+                allFiles.forEach(file => dt.items.add(file));
+                input.files = dt.files;
+            });
+
+            // Fungsi untuk membersihkan input dan hasil
+            function clearInputAndResults() {
+                allFiles = []; // Kosongkan array file
+                fileList.innerHTML = ''; // Kosongkan daftar file
+                fileCount.textContent = '0 file diupload'; // Reset jumlah file
+                input.files = new DataTransfer().files; // Kosongkan input.files
+                const resultContainer = inputId === 'heicInput' ? document.getElementById('convertResultContainer') : document.getElementById('renameResultContainer');
+                const downloadAllButton = inputId === 'heicInput' ? document.getElementById('convertDownloadAllButton') : document.getElementById('renameDownloadAllButton');
+                const downloadAllFilesButton = inputId === 'heicInput' ? document.getElementById('convertDownloadAllFilesButton') : document.getElementById('renameDownloadAllFilesButton');
+                resultContainer.innerHTML = ''; // Kosongkan hasil konversi
+                downloadAllButton.classList.remove('active'); // Sembunyikan tombol Unduh Semua (ZIP)
+                downloadAllFilesButton.classList.remove('active'); // Sembunyikan tombol Unduh Semua File
+            }
+
+            // Tambahkan event listener untuk tombol clear
+            const clearButton = inputId === 'heicInput' ? document.getElementById('clearConvertButton') : document.getElementById('clearRenameButton');
+            clearButton.addEventListener('click', clearInputAndResults);
+
+            return clearInputAndResults; // Kembalikan fungsi untuk penggunaan eksternal jika diperlukan
+        }
+
+        // Inisialisasi untuk kedua input
+        displayFileNames('heicInput', 'heicFileList', 'heicFileCount');
+        displayFileNames('fileInput', 'renameFileList', 'renameFileCount');
+
         // Convert HEIC and WebP to JPG
         async function convertHEIC() {
             const input = document.getElementById('heicInput');
@@ -636,6 +799,7 @@
             const resultContainer = document.getElementById('convertResultContainer');
             const convertButton = document.getElementById('convertButton');
             const downloadAllButton = document.getElementById('convertDownloadAllButton');
+            const downloadAllFilesButton = document.getElementById('convertDownloadAllFilesButton');
             
             if (!input.files || input.files.length === 0) {
                 alert('Harap pilih setidaknya satu file HEIC atau WebP!');
@@ -646,6 +810,7 @@
             progressContainer.classList.add('active');
             resultContainer.innerHTML = '';
             downloadAllButton.classList.remove('active');
+            downloadAllFilesButton.classList.remove('active');
 
             const files = Array.from(input.files);
             const convertedFiles = [];
@@ -716,6 +881,9 @@
 
                 if (convertedFiles.length > 0) {
                     downloadAllButton.classList.add('active');
+                    downloadAllFilesButton.classList.add('active');
+
+                    // Logika untuk Unduh Semua (ZIP)
                     downloadAllButton.onclick = async () => {
                         const zip = new JSZip();
                         convertedFiles.forEach(file => {
@@ -729,6 +897,18 @@
                         zipLink.download = 'converted_images.zip';
                         zipLink.click();
                         URL.revokeObjectURL(zipUrl);
+                    };
+
+                    // Logika untuk Unduh Semua File
+                    downloadAllFilesButton.onclick = () => {
+                        convertedFiles.forEach(file => {
+                            const url = URL.createObjectURL(file.blob);
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.download = file.name;
+                            link.click();
+                            URL.revokeObjectURL(url);
+                        });
                     };
                 } else {
                     alert('Tidak ada file HEIC atau WebP yang valid untuk dikonversi.');
@@ -752,6 +932,7 @@
             const resultContainer = document.getElementById('renameResultContainer');
             const renameButton = document.getElementById('renameButton');
             const downloadAllButton = document.getElementById('renameDownloadAllButton');
+            const downloadAllFilesButton = document.getElementById('renameDownloadAllFilesButton');
             
             if (!fileInput.files || fileInput.files.length === 0) {
                 alert('Harap pilih setidaknya satu file!');
@@ -767,6 +948,7 @@
             progressContainer.classList.add('active');
             resultContainer.innerHTML = '';
             downloadAllButton.classList.remove('active');
+            downloadAllFilesButton.classList.remove('active');
 
             const files = Array.from(fileInput.files);
             const renamedFiles = [];
@@ -798,21 +980,38 @@
                     renamedFiles.push({ blob: file, name: newName });
                 }
 
-                downloadAllButton.classList.add('active');
-                downloadAllButton.onclick = async () => {
-                    const zip = new JSZip();
-                    renamedFiles.forEach(file => {
-                        zip.file(file.name, file.blob);
-                    });
+                if (renamedFiles.length > 0) {
+                    downloadAllButton.classList.add('active');
+                    downloadAllFilesButton.classList.add('active');
 
-                    const zipBlob = await zip.generateAsync({ type: 'blob' });
-                    const zipUrl = URL.createObjectURL(zipBlob);
-                    const zipLink = document.createElement('a');
-                    zipLink.href = zipUrl;
-                    zipLink.download = 'renamed_files.zip';
-                    zipLink.click();
-                    URL.revokeObjectURL(zipUrl);
-                };
+                    // Logika untuk Unduh Semua (ZIP)
+                    downloadAllButton.onclick = async () => {
+                        const zip = new JSZip();
+                        renamedFiles.forEach(file => {
+                            zip.file(file.name, file.blob);
+                        });
+
+                        const zipBlob = await zip.generateAsync({ type: 'blob' });
+                        const zipUrl = URL.createObjectURL(zipBlob);
+                        const zipLink = document.createElement('a');
+                        zipLink.href = zipUrl;
+                        zipLink.download = 'renamed_files.zip';
+                        zipLink.click();
+                        URL.revokeObjectURL(zipUrl);
+                    };
+
+                    // Logika untuk Unduh Semua File
+                    downloadAllFilesButton.onclick = () => {
+                        renamedFiles.forEach(file => {
+                            const url = URL.createObjectURL(file.blob);
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.download = file.name;
+                            link.click();
+                            URL.revokeObjectURL(url);
+                        });
+                    };
+                }
             } catch (error) {
                 console.error('Kesalahan pemrosesan:', error);
                 alert('Terjadi kesalahan saat memproses satu atau lebih file. Silakan coba lagi.');
