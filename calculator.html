@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Samurai Calculator</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(180deg, #1f2523 0%, #2e2e2e 100%);
+            min-height: 100vh;
+            font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #d9d9d9;
+            box-sizing: border-box;
+        }
+
+        .calculator {
+            width: 90%;
+            max-width: 400px;
+            margin: 20px;
+            padding: 16px;
+            background: #2a2a2a;
+            border: 1px solid #4a3727;
+            border-radius: 12px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        .display {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #2a2a2a;
+            border: 1px solid #4a3727;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            font-size: 24px;
+            color: #f5e6c3;
+            text-align: right;
+            box-sizing: border-box;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .buttons {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 12px;
+            background: #2a2a2a;
+            border: 1px solid #4a3727;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            cursor: pointer;
+            color: #d9d9d9;
+            font-size: 16px;
+            font-weight: 600;
+            box-sizing: border-box;
+        }
+
+        .button:hover {
+            background: #3a3a3a;
+        }
+
+        .button.operator {
+            background: linear-gradient(45deg, #7f2b2b, #a13a3a);
+            color: #f5e6c3;
+        }
+
+        .button.operator:hover {
+            background: linear-gradient(45deg, #a13a3a, #c44a4a);
+        }
+
+        .button.clear {
+            background: #4a4a4a;
+            color: #d9d9d9;
+        }
+
+        .button.clear:hover {
+            background: #5a5a5a;
+        }
+
+        .button.equals {
+            background: linear-gradient(45deg, #b89778, #d4af37);
+            color: #1f2523;
+        }
+
+        .button.equals:hover {
+            background: linear-gradient(45deg, #d4af37, #e6c74c);
+        }
+
+        .katana {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            opacity: 0.2;
+            width: 40px;
+            height: 40px;
+            background: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="gold"><path d="M3 21l18-18 1.414 1.414L4.414 22.414 3 21zm6-6l6-6 1.414 1.414L10.414 16.414 9 15z"/></svg>') no-repeat center;
+        }
+
+        @media (min-width: 768px) {
+            .calculator {
+                max-width: 600px;
+                padding: 24px;
+            }
+
+            .display {
+                font-size: 32px;
+                padding: 16px;
+            }
+
+            .button {
+                padding: 16px;
+                font-size: 20px;
+            }
+
+            .buttons {
+                gap: 12px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="calculator">
+        <div class="katana"></div>
+        <div class="display" id="display">0</div>
+        <div class="buttons">
+            <div class="button clear" onclick="clearDisplay()">C</div>
+            <div class="button" onclick="appendToDisplay('%')">%</div>
+            <div class="button" onclick="backspace()">⌫</div>
+            <div class="button operator" onclick="appendToDisplay('/')">÷</div>
+            <div class="button" onclick="appendToDisplay('7')">7</div>
+            <div class="button" onclick="appendToDisplay('8')">8</div>
+            <div class="button" onclick="appendToDisplay('9')">9</div>
+            <div class="button operator" onclick="appendToDisplay('*')">×</div>
+            <div class="button" onclick="appendToDisplay('4')">4</div>
+            <div class="button" onclick="appendToDisplay('5')">5</div>
+            <div class="button" onclick="appendToDisplay('6')">6</div>
+            <div class="button operator" onclick="appendToDisplay('-')">-</div>
+            <div class="button" onclick="appendToDisplay('1')">1</div>
+            <div class="button" onclick="appendToDisplay('2')">2</div>
+            <div class="button" onclick="appendToDisplay('3')">3</div>
+            <div class="button operator" onclick="appendToDisplay('+')">+</div>
+            <div class="button" onclick="appendToDisplay('00')">00</div>
+            <div class="button" onclick="appendToDisplay('0')">0</div>
+            <div class="button" onclick="appendToDisplay('.')">.</div>
+            <div class="button equals" onclick="calculate()">=</div>
+        </div>
+    </div>
+
+    <script>
+        let display = document.getElementById('display');
+        let currentInput = '0';
+
+        function appendToDisplay(value) {
+            const operators = ['+', '-', '*', '/', '%'];
+            const lastChar = currentInput[currentInput.length - 1];
+
+            if (operators.includes(value)) {
+                if (operators.includes(lastChar)) {
+                    return; // Ignore additional operator
+                }
+            }
+
+            if (currentInput === '0' && value !== '.') {
+                currentInput = value;
+            } else {
+                currentInput += value;
+            }
+            updateDisplay();
+        }
+
+        function clearDisplay() {
+            currentInput = '0';
+            updateDisplay();
+        }
+
+        function backspace() {
+            currentInput = currentInput.length > 1 ? currentInput.slice(0, -1) : '0';
+            updateDisplay();
+        }
+
+        function calculate() {
+            try {
+                let expression = currentInput.replace('×', '*').replace('÷', '/');
+                if (expression.includes('%')) {
+                    expression = expression.replace('%', '/100*');
+                }
+                currentInput = eval(expression).toString();
+                updateDisplay();
+            } catch (e) {
+                currentInput = 'Error';
+                updateDisplay();
+                currentInput = '0';
+            }
+        }
+
+        function updateDisplay() {
+            display.textContent = currentInput;
+        }
+
+        // Keyboard support
+        document.addEventListener('keydown', (event) => {
+            const key = event.key;
+
+            if (/[0-9]/.test(key)) {
+                appendToDisplay(key);
+            } else if (key === '.') {
+                appendToDisplay('.');
+            } else if (key === '+') {
+                appendToDisplay('+');
+            } else if (key === '-') {
+                appendToDisplay('-');
+            } else if (key === '*' || (event.shiftKey && key === '8')) {
+                appendToDisplay('*');
+            } else if (key === '/' || (event.shiftKey && key === '?')) {
+                appendToDisplay('/');
+            } else if (key === 'Enter') {
+                calculate();
+            } else if (key === 'Backspace') {
+                backspace();
+            } else if (key === 'Escape' || key === 'c' || key === 'C') {
+                clearDisplay();
+            } else if (key === 'p' || key === 'P') {
+                appendToDisplay('%');
+            } else if (event.shiftKey && key === '0') {
+                appendToDisplay('00');
+            }
+        });
+    </script>
+</body>
+</html>
