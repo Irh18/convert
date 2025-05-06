@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Convert</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Samurai Tools</title>
     <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
     <style>
         body {
             margin: 0;
@@ -15,1014 +15,105 @@
             font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
             display: flex;
             justify-content: center;
-            align-items: flex-start;
+            align-items: center;
             color: #d9d9d9;
-            overflow-y: auto;
-            overflow-x: hidden;
             box-sizing: border-box;
-            padding-bottom: 68px;
         }
 
         .container {
-            width: 100%;
-            max-width: 400px;
-            margin: 20px 0;
-            opacity: 0;
-            transition: opacity 0.5s ease-in;
-            padding: 16px;
+            text-align: center;
+            padding: 20px;
             background: #2a2a2a;
             border: 1px solid #4a3727;
             border-radius: 12px;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-            box-sizing: border-box;
-            padding-bottom: 80px;
+            width: 90%;
+            max-width: 800px;
         }
 
-        .container.loaded {
-            opacity: 1;
+        h1 {
+            font-size: 24px;
+            margin-bottom: 20px;
         }
 
-        h2 {
-            font-size: 18px;
-            font-weight: 600;
-            color: #d9d9d9;
-            text-align: center;
-            margin: 0 0 16px 0;
-            text-transform: uppercase;
-            letter-spacing: 1px;
+        .button-group {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            flex-wrap: wrap;
         }
 
-        .input-container {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 10px;
-            background: #2a2a2a;
-            border: 1px solid #4a3727;
-            border-radius: 10px;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-            position: relative;
-            box-sizing: border-box;
-            overflow: hidden;
+        .button {
             display: flex;
             flex-direction: column;
-            gap: 8px;
-        }
-
-        .input-container input[type="file"] {
-            opacity: 0;
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            cursor: pointer;
-        }
-
-        .input-container label {
-            display: block;
-            font-size: 14px;
-            color: #d9d9d9;
-            padding: 8px;
-            text-align: center;
-            border: 1px dashed #4a3727;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s;
-        }
-
-        .input-container label:hover {
-            background: #3a3a3a;
-        }
-
-        .input-container input[type="file"]::-webkit-file-upload-button {
-            display: none;
-        }
-
-        .file-list {
-            margin-top: 8px;
-            font-size: 13px;
-            color: #d9d9d9;
-        }
-
-        .file-list div {
-            padding: 4px 8px;
-            background: #1f2523;
-            border-radius: 6px;
-            margin-bottom: 4px;
-            word-break: break-all;
-        }
-
-        .file-count {
-            font-size: 13px;
-            color: #b89778;
-            text-align: center;
-        }
-
-        .name-input-container {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 10px;
-            background: #2a2a2a;
-            border: 1px solid #4a3727;
-            border-radius: 10px;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-            box-sizing: border-box;
-        }
-
-        .name-input-container input[type="text"] {
-            width: 100%;
-            background: transparent;
-            border: none;
-            color: #d9d9d9;
-            font-size: 14px;
-            padding: 8px;
-            box-sizing: border-box;
-            outline: none;
-        }
-
-        .name-input-container input[type="text"]::placeholder {
-            color: #8b8b8b;
-        }
-
-        .action-button {
-            display: flex;
             align-items: center;
-            justify-content: center;
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 10px;
+            width: 150px;
+            padding: 15px;
             background: #2a2a2a;
             border: 1px solid #4a3727;
             border-radius: 10px;
             box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
-            cursor: pointer;
-            position: relative;
-            box-sizing: border-box;
             color: #d9d9d9;
-            font-size: 15px;
+            text-decoration: none;
+            font-size: 14px;
             font-weight: 600;
         }
 
-        .action-button:hover {
+        .button:hover {
             background: #3a3a3a;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-            animation: bounce 0.4s ease;
         }
 
-        .action-button:active {
-            transform: scale(0.98);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-        }
-
-        .action-button.disabled {
-            opacity: 0.5;
-            pointer-events: none;
-        }
-
-        .clear-button {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 10px;
-            background: #2a2a2a;
-            border: 1px solid #4a3727;
-            border-radius: 10px;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
-            cursor: pointer;
-            position: relative;
-            box-sizing: border-box;
-            color: #d9d9d9;
-            font-size: 15px;
-            font-weight: 600;
-        }
-
-        .clear-button:hover {
-            background: #3a3a3a;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-            animation: bounce 0.4s ease;
-        }
-
-        .clear-button:active {
-            transform: scale(0.98);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-        }
-
-        @keyframes bounce {
-            0%, 100% {
-                transform: translateY(0);
-            }
-            50% {
-                transform: translateY(-4px);
-            }
-        }
-
-        .action-button::after, .clear-button::after {
-            content: '↪';
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%) rotate(0deg);
-            font-size: 14px;
-            color: #b89778;
-            opacity: 0;
-            transition: opacity 0.3s, transform 0.3s;
-        }
-
-        .action-button:hover::after, .clear-button:hover::after {
-            opacity: 1;
-            transform: translateY(-50%) rotate(360deg);
-        }
-
-        .icon {
-            width: 36px;
-            height: 36px;
-            margin-right: 10px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            border-radius: 8px;
-            background: linear-gradient(45deg, #7f2b2b, #a13a3a);
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.3s;
-        }
-
-        .icon::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, rgba(255,255,255,0.2) 10%, transparent 60%);
-            opacity: 0;
-            transition: opacity 0.3s;
-        }
-
-        .action-button:hover .icon, .clear-button:hover .icon {
-            transform: rotate(10deg) scale(1.1);
-        }
-
-        .action-button:hover .icon::before, .clear-button:hover .icon::before {
-            opacity: 1;
-        }
-
-        .icon i {
-            font-size: 20px;
+        .button i {
+            font-size: 32px;
             color: #f5e6c3;
-            z-index: 1;
-        }
-
-        .progress-container {
-            width: 100%;
-            padding: 12px;
-            margin-bottom: 10px;
-            background: #2a2a2a;
-            border: 1px solid #4a3727;
-            border-radius: 10px;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-            box-sizing: border-box;
-            display: none;
-            text-align: center;
-        }
-
-        .progress-container.active {
-            display: block;
-        }
-
-        .progress-text {
-            font-size: 14px;
-            color: #d9d9d9;
             margin-bottom: 8px;
         }
 
-        .progress-bar {
-            width: 100%;
-            height: 8px;
-            background: #1f2523;
-            border-radius: 4px;
-            overflow: hidden;
+        .button:hover i {
+            color: #d4af37;
         }
 
-        .progress-fill {
-            width: 0%;
-            height: 100%;
-            background: linear-gradient(90deg, #b89778, #d4af37);
-            transition: width 0.3s ease;
-        }
-
-        .result-container {
-            width: 100%;
-            box-sizing: border-box;
-        }
-
-        .result-item {
-            margin-bottom: 10px;
-            background: #2a2a2a;
-            border: 1px solid #4a3727;
-            border-radius: 10px;
-            padding: 10px;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-            box-sizing: border-box;
-        }
-
-        .result-item a {
-            display: block;
-            width: 100%;
-            padding: 10px;
-            background: #2a2a2a;
-            border: 1px solid #4a3727;
-            border-radius: 8px;
-            text-align: center;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
-            cursor: pointer;
-            color: #d9d9d9;
-            font-size: 14px;
-            font-weight: 600;
-            text-decoration: none;
-            position: relative;
-            box-sizing: border-box;
-        }
-
-        .result-item a:hover {
-            background: #3a3a3a;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-            animation: bounce 0.4s ease;
-        }
-
-        .result-item a:active {
-            transform: scale(0.98);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-        }
-
-        .download-buttons-container {
-            display: flex;
-            gap: 10px;
-            margin-top: 10px;
-        }
-
-        .download-all-button, .download-all-files-button {
-            display: none;
-            flex: 1;
-            padding: 12px;
-            background: #2a2a2a;
-            border: 1px solid #4a3727;
-            border-radius: 10px;
-            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
-            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
-            cursor: pointer;
-            color: #d9d9d9;
-            font-size: 15px;
-            font-weight: 600;
-            text-align: center;
-            position: relative;
-            box-sizing: border-box;
-        }
-
-        .download-all-button.active, .download-all-files-button.active {
-            display: block;
-        }
-
-        .download-all-button:hover, .download-all-files-button:hover {
-            background: #3a3a3a;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-            animation: bounce 0.4s ease;
-        }
-
-        .download-all-button:active, .download-all-files-button:active {
-            transform: scale(0.98);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-        }
-
-        .download-all-button::after, .download-all-files-button::after {
-            content: '↪';
-            position: absolute;
-            right: 12px;
-            top: 50%;
-            transform: translateY(-50%) rotate(0deg);
-            font-size: 14px;
-            color: #b89778;
-            opacity: 0;
-            transition: opacity 0.3s, transform 0.3s;
-        }
-
-        .download-all-button:hover::after, .download-all-files-button:hover::after {
-            opacity: 1;
-            transform: translateY(-50%) rotate(360deg);
-        }
-
-        .bottom-bar {
-            position: fixed;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            max-width: 400px;
-            margin: 0 auto;
-            display: flex;
-            justify-content: space-around;
-            background: #2a2a2a;
-            border-top: 1px solid #4a3727;
-            padding: 10px 0;
-            box-shadow: 0 -1px 4px rgba(0, 0, 0, 0.2);
-            box-sizing: border-box;
-            z-index: 1000;
-        }
-
-        .bottom-bar-button {
-            background: #2a2a2a;
-            border: 1px solid #4a3727;
-            border-radius: 8px;
-            width: 48px;
-            height: 48px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
-            cursor: pointer;
-            position: relative;
-            box-sizing: border-box;
-        }
-
-        .bottom-bar-button:hover {
-            background: #3a3a3a;
-            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-            animation: bounce 0.4s ease;
-        }
-
-        .bottom-bar-button:active {
-            transform: scale(0.95);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-        }
-
-        .bottom-bar-button.active {
-            background: linear-gradient(45deg, #7f2b2b, #a13a3a);
-        }
-
-        .bottom-bar-button i {
-            font-size: 24px;
-            color: #f5e6c3;
-        }
-
-        .bottom-bar-button.active i {
-            color: #d9d9d9;
-        }
-
-        .bottom-bar-button::after {
-            content: '';
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, #b89778, #d4af37);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .bottom-bar-button.active::after,
-        .bottom-bar-button:hover::after {
-            transform: scaleX(1);
-        }
-
-        .underline {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 2px;
-            background: linear-gradient(90deg, #b89778, #d4af37);
-            transform: scaleX(0);
-            transform-origin: left;
-            transition: transform 0.3s ease-in-out;
-        }
-
-        .action-button:hover .underline,
-        .clear-button:hover .underline,
-        .result-item a:hover .underline,
-        .download-all-button:hover .underline,
-        .download-all-files-button:hover .underline {
-            transform: scaleX(1);
-        }
-
-        .loading-overlay {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: rgba(31, 37, 35, 0.9);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            z-index: 1000;
-            opacity: 1;
-            transition: opacity 0.5s ease-out;
-        }
-
-        .loading-overlay.hidden {
-            opacity: 0;
-            pointer-events: none;
-        }
-
-        .loader {
-            width: 50px;
-            height: 50px;
-            position: relative;
-        }
-
-        .loader::before {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border: 3px solid transparent;
-            border-top-color: #a13a3a;
-            border-right-color: #7f2b2b;
-            border-radius: 50%;
-            animation: spin 1.5s linear infinite;
-        }
-
-        .loader::after {
-            content: '';
-            position: absolute;
-            width: 100%;
-            height: 100%;
-            border: 3px solid transparent;
-            border-top-color: #b89778;
-            border-radius: 50%;
-            animation: spin 2s linear infinite reverse;
-            opacity: 0.6;
-        }
-
-        @keyframes spin {
-            0% {
-                transform: rotate(0deg);
-            }
-            100% {
-                transform: rotate(360deg);
-            }
-        }
-
-        #convertSection, #renameSection {
-            display: none;
-        }
-
-        #convertSection.active, #renameSection.active {
-            display: block;
-        }
-
-        @media (min-width: 401px) {
-            body {
+        @media (max-width: 767px) {
+            .button-group {
+                flex-direction: column;
                 align-items: center;
             }
-            .container {
-                margin: 20px auto;
+
+            .button {
+                width: 80%;
+                max-width: 200px;
+                padding: 12px;
             }
-            .bottom-bar {
-                left: 50%;
-                transform: translateX(-50%);
+
+            .button i {
+                font-size: 28px;
+            }
+        }
+
+        @media (min-width: 768px) {
+            .button {
+                width: 150px;
             }
         }
     </style>
 </head>
 <body>
-    <div class="loading-overlay">
-        <div class="loader"></div>
-    </div>
     <div class="container">
-        <div id="convertSection" class="active">
-            <h2>HEIC & WebP to JPG Converter</h2>
-            <div class="input-container">
-                <label for="heicInput">Silahkan masukkan file anda</label>
-                <input type="file" id="heicInput" accept=".heic,.HEIC,.webp,.WEBP" multiple />
-                <div class="file-count" id="heicFileCount">0 file diupload</div>
-                <div class="file-list" id="heicFileList"></div>
-            </div>
-            <button class="clear-button" id="clearConvertButton">
-                <div class="icon">
-                    <i class="bi bi-trash"></i>
-                </div>
-                Bersihkan
-                <div class="underline"></div>
-            </button>
-            <button class="action-button" id="convertButton">
-                <div class="icon">
-                    <i class="bi bi-arrow-right-circle"></i>
-                </div>
-                Convert to JPG
-                <div class="underline"></div>
-            </button>
-            <div class="progress-container" id="convertProgressContainer">
-                <div class="progress-text" id="convertProgressText">Mengonversi... 0%</div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="convertProgressFill"></div>
-                </div>
-            </div>
-            <div class="result-container" id="convertResultContainer"></div>
-            <div class="download-buttons-container">
-                <button class="download-all-button" id="convertDownloadAllButton">
-                    Unduh Semua (ZIP)
-                    <div class="underline"></div>
-                </button>
-                <button class="download-all-files-button" id="convertDownloadAllFilesButton">
-                    Unduh Semua File
-                    <div class="underline"></div>
-                </button>
-            </div>
-        </div>
-        <div id="renameSection">
-            <h2>File Renamer</h2>
-            <div class="name-input-container">
-                <input type="text" id="nameInput" placeholder="Masukkan nama dasar file (misal, Foto)" />
-            </div>
-            <div class="input-container">
-                <label for="fileInput">Silahkan masukkan file anda</label>
-                <input type="file" id="fileInput" multiple />
-                <div class="file-count" id="renameFileCount">0 file diupload</div>
-                <div class="file-list" id="renameFileList"></div>
-            </div>
-            <button class="clear-button" id="clearRenameButton">
-                <div class="icon">
-                    <i class="bi bi-trash"></i>
-                </div>
-                Bersihkan
-                <div class="underline"></div>
-            </button>
-            <button class="action-button" id="renameButton">
-                <div class="icon">
-                    <i class="bi bi-pencil-square"></i>
-                </div>
-                Ganti Nama File
-                <div class="underline"></div>
-            </button>
-            <div class="progress-container" id="renameProgressContainer">
-                <div class="progress-text" id="renameProgressText">Memproses... 0%</div>
-                <div class="progress-bar">
-                    <div class="progress-fill" id="renameProgressFill"></div>
-                </div>
-            </div>
-            <div class="result-container" id="renameResultContainer"></div>
-            <div class="download-buttons-container">
-                <button class="download-all-button" id="renameDownloadAllButton">
-                    Unduh Semua (ZIP)
-                    <div class="underline"></div>
-                </button>
-                <button class="download-all-files-button" id="renameDownloadAllFilesButton">
-                    Unduh Semua File
-                    <div class="underline"></div>
-                </button>
-            </div>
+        <h1>Samurai Tools</h1>
+        <div class="button-group">
+            <a href="calculator.html" class="button">
+                <i class="bi bi-calculator"></i>
+                Calculator
+            </a>
+            <a href="convertheicwebptojpg.html" class="button">
+                <i class="bi bi-image"></i>
+                Convert HEIC/WebP to JPG
+            </a>
+            <a href="rename.html" class="button">
+                <i class="bi bi-pencil-square"></i>
+                File Renamer
+            </a>
         </div>
     </div>
-    <div class="bottom-bar">
-        <button class="bottom-bar-button active" id="showConvert">
-            <i class="bi bi-arrow-right-circle"></i>
-            <div class="underline"></div>
-        </button>
-        <button class="bottom-bar-button" id="showRename">
-            <i class="bi bi-pencil-square"></i>
-            <div class="underline"></div>
-        </button>
-    </div>
-
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/heic2any/0.0.4/heic2any.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
-    <script>
-        window.addEventListener('load', () => {
-            setTimeout(() => {
-                document.querySelector('.loading-overlay').classList.add('hidden');
-                document.querySelector('.container').classList.add('loaded');
-            }, 1500);
-        });
-
-        // Bottom bar navigation
-        const convertSection = document.getElementById('convertSection');
-        const renameSection = document.getElementById('renameSection');
-        const showConvert = document.getElementById('showConvert');
-        const showRename = document.getElementById('showRename');
-
-        showConvert.addEventListener('click', () => {
-            convertSection.classList.add('active');
-            renameSection.classList.remove('active');
-            showConvert.classList.add('active');
-            showRename.classList.remove('active');
-        });
-
-        showRename.addEventListener('click', () => {
-            renameSection.classList.add('active');
-            convertSection.classList.remove('active');
-            showRename.classList.add('active');
-            showConvert.classList.remove('active');
-        });
-
-        // Fungsi untuk menampilkan daftar nama file, jumlah file, dan validasi ekstensi
-        function displayFileNames(inputId, listId, countId) {
-            const input = document.getElementById(inputId);
-            const fileList = document.getElementById(listId);
-            const fileCount = document.getElementById(countId);
-            let allFiles = []; // Menyimpan semua file yang telah dipilih
-
-            input.addEventListener('change', () => {
-                const newFiles = Array.from(input.files);
-                const existingNames = new Set(allFiles.map(file => file.name));
-                const isHeicInput = inputId === 'heicInput';
-                let invalidFiles = [];
-
-                // Validasi ekstensi untuk heicInput
-                newFiles.forEach(file => {
-                    const fileName = file.name.toLowerCase();
-                    if (isHeicInput && !fileName.endsWith('.heic') && !fileName.endsWith('.webp')) {
-                        invalidFiles.push(file.name);
-                    } else if (!existingNames.has(file.name)) {
-                        allFiles.push(file);
-                        existingNames.add(file.name);
-                    }
-                });
-
-                // Tampilkan peringatan jika ada file tidak valid
-                if (invalidFiles.length > 0) {
-                    alert(`File berikut tidak valid (hanya .heic dan .webp yang diperbolehkan): ${invalidFiles.join(', ')}`);
-                }
-
-                // Perbarui tampilan daftar file
-                fileList.innerHTML = ''; // Kosongkan daftar untuk render ulang
-                allFiles.forEach(file => {
-                    const fileItem = document.createElement('div');
-                    fileItem.textContent = file.name;
-                    fileList.appendChild(fileItem);
-                });
-
-                // Perbarui jumlah file
-                fileCount.textContent = `${allFiles.length} file diupload`;
-
-                // Perbarui input.files dengan semua file yang valid
-                const dt = new DataTransfer();
-                allFiles.forEach(file => dt.items.add(file));
-                input.files = dt.files;
-            });
-
-            // Fungsi untuk membersihkan input dan hasil
-            function clearInputAndResults() {
-                allFiles = []; // Kosongkan array file
-                fileList.innerHTML = ''; // Kosongkan daftar file
-                fileCount.textContent = '0 file diupload'; // Reset jumlah file
-                input.files = new DataTransfer().files; // Kosongkan input.files
-                const resultContainer = inputId === 'heicInput' ? document.getElementById('convertResultContainer') : document.getElementById('renameResultContainer');
-                const downloadAllButton = inputId === 'heicInput' ? document.getElementById('convertDownloadAllButton') : document.getElementById('renameDownloadAllButton');
-                const downloadAllFilesButton = inputId === 'heicInput' ? document.getElementById('convertDownloadAllFilesButton') : document.getElementById('renameDownloadAllFilesButton');
-                resultContainer.innerHTML = ''; // Kosongkan hasil konversi
-                downloadAllButton.classList.remove('active'); // Sembunyikan tombol Unduh Semua (ZIP)
-                downloadAllFilesButton.classList.remove('active'); // Sembunyikan tombol Unduh Semua File
-            }
-
-            // Tambahkan event listener untuk tombol clear
-            const clearButton = inputId === 'heicInput' ? document.getElementById('clearConvertButton') : document.getElementById('clearRenameButton');
-            clearButton.addEventListener('click', clearInputAndResults);
-
-            return clearInputAndResults; // Kembalikan fungsi untuk penggunaan eksternal jika diperlukan
-        }
-
-        // Inisialisasi untuk kedua input
-        displayFileNames('heicInput', 'heicFileList', 'heicFileCount');
-        displayFileNames('fileInput', 'renameFileList', 'renameFileCount');
-
-        // Convert HEIC and WebP to JPG
-        async function convertHEIC() {
-            const input = document.getElementById('heicInput');
-            const progressContainer = document.getElementById('convertProgressContainer');
-            const progressText = document.getElementById('convertProgressText');
-            const progressFill = document.getElementById('convertProgressFill');
-            const resultContainer = document.getElementById('convertResultContainer');
-            const convertButton = document.getElementById('convertButton');
-            const downloadAllButton = document.getElementById('convertDownloadAllButton');
-            const downloadAllFilesButton = document.getElementById('convertDownloadAllFilesButton');
-            
-            if (!input.files || input.files.length === 0) {
-                alert('Harap pilih setidaknya satu file HEIC atau WebP!');
-                return;
-            }
-
-            convertButton.classList.add('disabled');
-            progressContainer.classList.add('active');
-            resultContainer.innerHTML = '';
-            downloadAllButton.classList.remove('active');
-            downloadAllFilesButton.classList.remove('active');
-
-            const files = Array.from(input.files);
-            const convertedFiles = [];
-            let completed = 0;
-
-            try {
-                for (const file of files) {
-                    let jpgBlob;
-                    const fileName = file.name.toLowerCase();
-                    
-                    if (fileName.endsWith('.heic')) {
-                        // Konversi file HEIC menggunakan heic2any
-                        jpgBlob = await heic2any({
-                            blob: file,
-                            toType: 'image/jpeg',
-                            quality: 1
-                        });
-                    } else if (fileName.endsWith('.webp')) {
-                        // Konversi file WebP menggunakan canvas
-                        const img = new Image();
-                        const url = URL.createObjectURL(file);
-                        
-                        // Tunggu sampai gambar dimuat
-                        await new Promise((resolve, reject) => {
-                            img.onload = resolve;
-                            img.onerror = reject;
-                            img.src = url;
-                        });
-
-                        // Buat canvas untuk menggambar gambar
-                        const canvas = document.createElement('canvas');
-                        canvas.width = img.width;
-                        canvas.height = img.height;
-                        const ctx = canvas.getContext('2d');
-                        ctx.drawImage(img, 0, 0);
-
-                        // Konversi ke JPG
-                        jpgBlob = await new Promise(resolve => {
-                            canvas.toBlob(resolve, 'image/jpeg', 1);
-                        });
-
-                        URL.revokeObjectURL(url);
-                    } else {
-                        // Lewati file yang tidak didukung
-                        continue;
-                    }
-
-                    completed++;
-                    const progress = Math.round((completed / files.length) * 100);
-                    progressText.textContent = `Mengonversi... ${progress}%`;
-                    progressFill.style.width = `${progress}%`;
-
-                    const resultItem = document.createElement('div');
-                    resultItem.className = 'result-item';
-
-                    const downloadLink = document.createElement('a');
-                    const url = URL.createObjectURL(jpgBlob);
-                    const newFileName = file.name.replace(/\.(heic|webp)$/i, '.jpg');
-                    downloadLink.href = url;
-                    downloadLink.download = newFileName;
-                    downloadLink.textContent = `Unduh ${newFileName}`;
-                    downloadLink.innerHTML += '<div class="underline"></div>';
-                    resultItem.appendChild(downloadLink);
-
-                    resultContainer.appendChild(resultItem);
-                    convertedFiles.push({ blob: jpgBlob, name: newFileName });
-                }
-
-                if (convertedFiles.length > 0) {
-                    downloadAllButton.classList.add('active');
-                    downloadAllFilesButton.classList.add('active');
-
-                    // Logika untuk Unduh Semua (ZIP)
-                    downloadAllButton.onclick = async () => {
-                        const zip = new JSZip();
-                        convertedFiles.forEach(file => {
-                            zip.file(file.name, file.blob);
-                        });
-
-                        const zipBlob = await zip.generateAsync({ type: 'blob' });
-                        const zipUrl = URL.createObjectURL(zipBlob);
-                        const zipLink = document.createElement('a');
-                        zipLink.href = zipUrl;
-                        zipLink.download = 'converted_images.zip';
-                        zipLink.click();
-                        URL.revokeObjectURL(zipUrl);
-                    };
-
-                    // Logika untuk Unduh Semua File
-                    downloadAllFilesButton.onclick = () => {
-                        convertedFiles.forEach(file => {
-                            const url = URL.createObjectURL(file.blob);
-                            const link = document.createElement('a');
-                            link.href = url;
-                            link.download = file.name;
-                            link.click();
-                            URL.revokeObjectURL(url);
-                        });
-                    };
-                } else {
-                    alert('Tidak ada file HEIC atau WebP yang valid untuk dikonversi.');
-                }
-            } catch (error) {
-                console.error('Kesalahan konversi:', error);
-                alert('Terjadi kesalahan saat mengonversi satu atau lebih file. Silakan coba lagi.');
-            } finally {
-                progressContainer.classList.remove('active');
-                convertButton.classList.remove('disabled');
-            }
-        }
-
-        // Rename Files
-        async function renameFiles() {
-            const nameInput = document.getElementById('nameInput');
-            const fileInput = document.getElementById('fileInput');
-            const progressContainer = document.getElementById('renameProgressContainer');
-            const progressText = document.getElementById('renameProgressText');
-            const progressFill = document.getElementById('renameProgressFill');
-            const resultContainer = document.getElementById('renameResultContainer');
-            const renameButton = document.getElementById('renameButton');
-            const downloadAllButton = document.getElementById('renameDownloadAllButton');
-            const downloadAllFilesButton = document.getElementById('renameDownloadAllFilesButton');
-            
-            if (!fileInput.files || fileInput.files.length === 0) {
-                alert('Harap pilih setidaknya satu file!');
-                return;
-            }
-
-            let baseName = nameInput.value.trim();
-            if (!baseName) {
-                baseName = 'File';
-            }
-
-            renameButton.classList.add('disabled');
-            progressContainer.classList.add('active');
-            resultContainer.innerHTML = '';
-            downloadAllButton.classList.remove('active');
-            downloadAllFilesButton.classList.remove('active');
-
-            const files = Array.from(fileInput.files);
-            const renamedFiles = [];
-            let completed = 0;
-
-            try {
-                for (let i = 0; i < files.length; i++) {
-                    const file = files[i];
-                    const extension = file.name.split('.').pop();
-                    const newName = `${baseName} ${i + 1}.${extension}`;
-
-                    completed++;
-                    const progress = Math.round((completed / files.length) * 100);
-                    progressText.textContent = `Memproses... ${progress}%`;
-                    progressFill.style.width = `${progress}%`;
-
-                    const resultItem = document.createElement('div');
-                    resultItem.className = 'result-item';
-
-                    const downloadLink = document.createElement('a');
-                    const url = URL.createObjectURL(file);
-                    downloadLink.href = url;
-                    downloadLink.download = newName;
-                    downloadLink.textContent = `Unduh ${newName}`;
-                    downloadLink.innerHTML += '<div class="underline"></div>';
-                    resultItem.appendChild(downloadLink);
-
-                    resultContainer.appendChild(resultItem);
-                    renamedFiles.push({ blob: file, name: newName });
-                }
-
-                if (renamedFiles.length > 0) {
-                    downloadAllButton.classList.add('active');
-                    downloadAllFilesButton.classList.add('active');
-
-                    // Logika untuk Unduh Semua (ZIP)
-                    downloadAllButton.onclick = async () => {
-                        const zip = new JSZip();
-                        renamedFiles.forEach(file => {
-                            zip.file(file.name, file.blob);
-                        });
-
-                        const zipBlob = await zip.generateAsync({ type: 'blob' });
-                        const zipUrl = URL.createObjectURL(zipBlob);
-                        const zipLink = document.createElement('a');
-                        zipLink.href = zipUrl;
-                        zipLink.download = 'renamed_files.zip';
-                        zipLink.click();
-                        URL.revokeObjectURL(zipUrl);
-                    };
-
-                    // Logika untuk Unduh Semua File
-                    downloadAllFilesButton.onclick = () => {
-                        renamedFiles.forEach(file => {
-                            const url = URL.createObjectURL(file.blob);
-                            const link = document.createElement('a');
-                            link.href = url;
-                            link.download = file.name;
-                            link.click();
-                            URL.revokeObjectURL(url);
-                        });
-                    };
-                }
-            } catch (error) {
-                console.error('Kesalahan pemrosesan:', error);
-                alert('Terjadi kesalahan saat memproses satu atau lebih file. Silakan coba lagi.');
-            } finally {
-                progressContainer.classList.remove('active');
-                renameButton.classList.remove('disabled');
-            }
-        }
-
-        document.getElementById('convertButton').addEventListener('click', convertHEIC);
-        document.getElementById('renameButton').addEventListener('click', renameFiles);
-    </script>
 </body>
 </html>
