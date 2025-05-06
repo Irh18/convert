@@ -1,0 +1,761 @@
+<script type="text/javascript">
+        var gk_isXlsx = false;
+        var gk_xlsxFileLookup = {};
+        var gk_fileData = {};
+        function filledCell(cell) {
+          return cell !== '' && cell != null;
+        }
+        function loadFileData(filename) {
+        if (gk_isXlsx && gk_xlsxFileLookup[filename]) {
+            try {
+                var workbook = XLSX.read(gk_fileData[filename], { type: 'base64' });
+                var firstSheetName = workbook.SheetNames[0];
+                var worksheet = workbook.Sheets[firstSheetName];
+
+                // Convert sheet to JSON to filter blank rows
+                var jsonData = XLSX.utils.sheet_to_json(worksheet, { header: 1, blankrows: false, defval: '' });
+                // Filter out blank rows (rows where all cells are empty, null, or undefined)
+                var filteredData = jsonData.filter(row => row.some(filledCell));
+
+                // Heuristic to find the header row by ignoring rows with fewer filled cells than the next row
+                var headerRowIndex = filteredData.findIndex((row, index) =>
+                  row.filter(filledCell).length >= filteredData[index + 1]?.filter(filledCell).length
+                );
+                // Fallback
+                if (headerRowIndex === -1 || headerRowIndex > 25) {
+                  headerRowIndex = 0;
+                }
+
+                // Convert filtered JSON back to CSV
+                var csv = XLSX.utils.aoa_to_sheet(filteredData.slice(headerRowIndex)); // Create a new sheet from filtered array of arrays
+                csv = XLSX.utils.sheet_to_csv(csv, { header: 1 });
+                return csv;
+            } catch (e) {
+                console.error(e);
+                return "";
+            }
+        }
+        return gk_fileData[filename] || "";
+        }
+        </script><!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>File Renamer</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+JP:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background: linear-gradient(180deg, #1f2523 0%, #2e2e2e 100%);
+            min-height: 100vh;
+            font-family: 'Noto Sans JP', -apple-system, BlinkMacSystemFont, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: flex-start;
+            color: #d9d9d9;
+            overflow-y: auto;
+            overflow-x: hidden;
+            box-sizing: border-box;
+            padding-bottom: 68px;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 400px;
+            margin: 20px 0;
+            opacity: 0;
+            transition: opacity 0.5s ease-in;
+            padding: 16px;
+            background: #2a2a2a;
+            border: 1px solid #4a3727;
+            border-radius: 12px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
+            padding-bottom: 80px;
+        }
+
+        .container.loaded {
+            opacity: 1;
+        }
+
+        h2 {
+            font-size: 18px;
+            font-weight: 600;
+            color: #d9d9d9;
+            text-align: center;
+            margin: 0 0 16px 0;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .input-container {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #2a2a2a;
+            border: 1px solid #4a3727;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            position: relative;
+            box-sizing: border-box;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .input-container input[type="file"] {
+            opacity: 0;
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            cursor: pointer;
+        }
+
+        .input-container label {
+            display: block;
+            font-size: 14px;
+            color: #d9d9d9;
+            padding: 8px;
+            text-align: center;
+            border: 1px dashed #4a3727;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .input-container label:hover {
+            background: #3a3a3a;
+        }
+
+        .input-container input[type="file"]::-webkit-file-upload-button {
+            display: none;
+        }
+
+        .file-list {
+            margin-top: 8px;
+            font-size: 13px;
+            color: #d9d9d9;
+        }
+
+        .file-list div {
+            padding: 4px 8px;
+            background: #1f2523;
+            border-radius: 6px;
+            margin-bottom: 4px;
+            word-break: break-all;
+        }
+
+        .file-count {
+            font-size: 13px;
+            color: #b89778;
+            text-align: center;
+        }
+
+        .name-input-container {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #2a2a2a;
+            border: 1px solid #4a3727;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
+        }
+
+        .name-input-container input[type="text"] {
+            width: 100%;
+            background: transparent;
+            border: none;
+            color: #d9d9d9;
+            font-size: 14px;
+            padding: 8px;
+            box-sizing: border-box;
+            outline: none;
+        }
+
+        .name-input-container input[type="text"]::placeholder {
+            color: #8b8b8b;
+        }
+
+        .action-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #2a2a2a;
+            border: 1px solid #4a3727;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+            cursor: pointer;
+            position: relative;
+            box-sizing: border-box;
+            color: #d9d9d9;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .action-button:hover {
+            background: #3a3a3a;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            animation: bounce 0.4s ease;
+        }
+
+        .action-button:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .action-button.disabled {
+            opacity: 0.5;
+            pointer-events: none;
+        }
+
+        .clear-button {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #2a2a2a;
+            border: 1px solid #4a3727;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+            cursor: pointer;
+            position: relative;
+            box-sizing: border-box;
+            color: #d9d9d9;
+            font-size: 15px;
+            font-weight: 600;
+        }
+
+        .clear-button:hover {
+            background: #3a3a3a;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            animation: bounce 0.4s ease;
+        }
+
+        .clear-button:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        @keyframes bounce {
+            0%, 100% {
+                transform: translateY(0);
+            }
+            50% {
+                transform: translateY(-4px);
+            }
+        }
+
+        .action-button::after, .clear-button::after {
+            content: '↪';
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%) rotate(0deg);
+            font-size: 14px;
+            color: #b89778;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .action-button:hover::after, .clear-button:hover::after {
+            opacity: 1;
+            transform: translateY(-50%) rotate(360deg);
+        }
+
+        .icon {
+            width: 36px;
+            height: 36px;
+            margin-right: 10px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 8px;
+            background: linear-gradient(45deg, #7f2b2b, #a13a3a);
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.3s;
+        }
+
+        .icon::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, rgba(255,255,255,0.2) 10%, transparent 60%);
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .action-button:hover .icon, .clear-button:hover .icon {
+            transform: rotate(10deg) scale(1.1);
+        }
+
+        .action-button:hover .icon::before, .clear-button:hover .icon::before {
+            opacity: 1;
+        }
+
+        .icon i {
+            font-size: 20px;
+            color: #f5e6c3;
+            z-index: 1;
+        }
+
+        .progress-container {
+            width: 100%;
+            padding: 12px;
+            margin-bottom: 10px;
+            background: #2a2a2a;
+            border: 1px solid #4a3727;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
+            display: none;
+            text-align: center;
+        }
+
+        .progress-container.active {
+            display: block;
+        }
+
+        .progress-text {
+            font-size: 14px;
+            color: #d9d9d9;
+            margin-bottom: 8px;
+        }
+
+        .progress-bar {
+            width: 100%;
+            height: 8px;
+            background: #1f2523;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+
+        .progress-fill {
+            width: 0%;
+            height: 100%;
+            background: linear-gradient(90deg, #b89778, #d4af37);
+            transition: width 0.3s ease;
+        }
+
+        .result-container {
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        .result-item {
+            margin-bottom: 10px;
+            background: #2a2a2a;
+            border: 1px solid #4a3727;
+            border-radius: 10px;
+            padding: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            box-sizing: border-box;
+        }
+
+        .result-item a {
+            display: block;
+            width: 100%;
+            padding: 10px;
+            background: #2a2a2a;
+            border: 1px solid #4a3727;
+            border-radius: 8px;
+            text-align: center;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+            cursor: pointer;
+            color: #d9d9d9;
+            font-size: 14px;
+            font-weight: 600;
+            text-decoration: none;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .result-item a:hover {
+            background: #3a3a3a;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            animation: bounce 0.4s ease;
+        }
+
+        .result-item a:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .download-buttons-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .download-all-button, .download-all-files-button {
+            display: none;
+            flex: 1;
+            padding: 12px;
+            background: #2a2a2a;
+            border: 1px solid #4a3727;
+            border-radius: 10px;
+            box-shadow: 0 1px 4px rgba(0, 0, 0, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s, background 0.2s;
+            cursor: pointer;
+            color: #d9d9d9;
+            font-size: 15px;
+            font-weight: 600;
+            text-align: center;
+            position: relative;
+            box-sizing: border-box;
+        }
+
+        .download-all-button.active, .download-all-files-button.active {
+            display: block;
+        }
+
+        .download-all-button:hover, .download-all-files-button:hover {
+            background: #3a3a3a;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+            animation: bounce 0.4s ease;
+        }
+
+        .download-all-button:active, .download-all-files-button:active {
+            transform: scale(0.98);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+        }
+
+        .download-all-button::after, .download-all-files-button::after {
+            content: '↪';
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%) rotate(0deg);
+            font-size: 14px;
+            color: #b89778;
+            opacity: 0;
+            transition: opacity 0.3s, transform 0.3s;
+        }
+
+        .download-all-button:hover::after, .download-all-files-button:hover::after {
+            opacity: 1;
+            transform: translateY(-50%) rotate(360deg);
+        }
+
+        .underline {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 2px;
+            background: linear-gradient(90deg, #b89778, #d4af37);
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.3s ease-in-out;
+        }
+
+        .action-button:hover .underline,
+        .clear-button:hover .underline,
+        .result-item a:hover .underline,
+        .download-all-button:hover .underline,
+        .download-all-files-button:hover .underline {
+            transform: scaleX(1);
+        }
+
+        .loading-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(31, 37, 35, 0.9);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+            opacity: 1;
+            transition: opacity 0.5s ease-out;
+        }
+
+        .loading-overlay.hidden {
+            opacity: 0;
+            pointer-events: none;
+        }
+
+        .loader {
+            width: 50px;
+            height: 50px;
+            position: relative;
+        }
+
+        .loader::before {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px solid transparent;
+            border-top-color: #a13a3a;
+            border-right-color: #7f2b2b;
+            border-radius: 50%;
+            animation: spin 1.5s linear infinite;
+        }
+
+        .loader::after {
+            content: '';
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            border: 3px solid transparent;
+            border-top-color: #b89778;
+            border-radius: 50%;
+            animation: spin 2s linear infinite reverse;
+            opacity: 0.6;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        @media (min-width: 401px) {
+            body {
+                align-items: center;
+            }
+            .container {
+                margin: 20px auto;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="loading-overlay">
+        <div class="loader"></div>
+    </div>
+    <div class="container">
+        <h2>File Renamer</h2>
+        <div class="name-input-container">
+            <input type="text" id="nameInput" placeholder="Masukkan nama dasar file (misal, Foto)" />
+        </div>
+        <div class="input-container">
+            <label for="fileInput">Silahkan masukkan file anda</label>
+            <input type="file" id="fileInput" multiple />
+            <div class="file-count" id="renameFileCount">0 file diupload</div>
+            <div class="file-list" id="renameFileList"></div>
+        </div>
+        <button class="clear-button" id="clearRenameButton">
+            <div class="icon">
+                <i class="bi bi-trash"></i>
+            </div>
+            Bersihkan
+            <div class="underline"></div>
+        </button>
+        <button class="action-button" id="renameButton">
+            <div class="icon">
+                <i class="bi bi-pencil-square"></i>
+            </div>
+            Ganti Nama File
+            <div class="underline"></div>
+        </button>
+        <div class="progress-container" id="renameProgressContainer">
+            <div class="progress-text" id="renameProgressText">Memproses... 0%</div>
+            <div class="progress-bar">
+                <div class="progress-fill" id="renameProgressFill"></div>
+            </div>
+        </div>
+        <div class="result-container" id="renameResultContainer"></div>
+        <div class="download-buttons-container">
+            <button class="download-all-button" id="renameDownloadAllButton">
+                Unduh Semua (ZIP)
+                <div class="underline"></div>
+            </button>
+            <button class="download-all-files-button" id="renameDownloadAllFilesButton">
+                Unduh Semua File
+                <div class="underline"></div>
+            </button>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jszip/3.10.1/jszip.min.js"></script>
+    <script>
+        window.addEventListener('load', () => {
+            setTimeout(() => {
+                document.querySelector('.loading-overlay').classList.add('hidden');
+                document.querySelector('.container').classList.add('loaded');
+            }, 1500);
+        });
+
+        // Fungsi untuk menampilkan daftar nama file, jumlah file, dan validasi ekstensi
+        function displayFileNames() {
+            const input = document.getElementById('fileInput');
+            const fileList = document.getElementById('renameFileList');
+            const fileCount = document.getElementById('renameFileCount');
+            let allFiles = []; // Menyimpan semua file yang telah dipilih
+
+            input.addEventListener('change', () => {
+                const newFiles = Array.from(input.files);
+                const existingNames = new Set(allFiles.map(file => file.name));
+
+                // Tambahkan file baru yang belum ada
+                newFiles.forEach(file => {
+                    if (!existingNames.has(file.name)) {
+                        allFiles.push(file);
+                        existingNames.add(file.name);
+                    }
+                });
+
+                // Perbarui tampilan daftar file
+                fileList.innerHTML = ''; // Kosongkan daftar untuk render ulang
+                allFiles.forEach(file => {
+                    const fileItem = document.createElement('div');
+                    fileItem.textContent = file.name;
+                    fileList.appendChild(fileItem);
+                });
+
+                // Perbarui jumlah file
+                fileCount.textContent = `${allFiles.length} file diupload`;
+
+                // Perbarui input.files dengan semua file yang valid
+                const dt = new DataTransfer();
+                allFiles.forEach(file => dt.items.add(file));
+                input.files = dt.files;
+            });
+
+            // Fungsi untuk membersihkan input dan hasil
+            function clearInputAndResults() {
+                allFiles = []; // Kosongkan array file
+                fileList.innerHTML = ''; // Kosongkan daftar file
+                fileCount.textContent = '0 file diupload'; // Reset jumlah file
+                input.files = new DataTransfer().files; // Kosongkan input.files
+                const resultContainer = document.getElementById('renameResultContainer');
+                const downloadAllButton = document.getElementById('renameDownloadAllButton');
+                const downloadAllFilesButton = document.getElementById('renameDownloadAllFilesButton');
+                resultContainer.innerHTML = ''; // Kosongkan hasil konversi
+                downloadAllButton.classList.remove('active'); // Sembunyikan tombol Unduh Semua (ZIP)
+                downloadAllFilesButton.classList.remove('active'); // Sembunyikan tombol Unduh Semua File
+            }
+
+            // Tambahkan event listener untuk tombol clear
+            document.getElementById('clearRenameButton').addEventListener('click', clearInputAndResults);
+        }
+
+        // Inisialisasi untuk input
+        displayFileNames();
+
+        // Rename Files
+        async function renameFiles() {
+            const nameInput = document.getElementById('nameInput');
+            const fileInput = document.getElementById('fileInput');
+            const progressContainer = document.getElementById('renameProgressContainer');
+            const progressText = document.getElementById('renameProgressText');
+            const progressFill = document.getElementById('renameProgressFill');
+            const resultContainer = document.getElementById('renameResultContainer');
+            const renameButton = document.getElementById('renameButton');
+            const downloadAllButton = document.getElementById('renameDownloadAllButton');
+            const downloadAllFilesButton = document.getElementById('renameDownloadAllFilesButton');
+            
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert('Harap pilih setidaknya satu file!');
+                return;
+            }
+
+            let baseName = nameInput.value.trim();
+            if (!baseName) {
+                baseName = 'File';
+            }
+
+            renameButton.classList.add('disabled');
+            progressContainer.classList.add('active');
+            resultContainer.innerHTML = '';
+            downloadAllButton.classList.remove('active');
+            downloadAllFilesButton.classList.remove('active');
+
+            const files = Array.from(fileInput.files);
+            const renamedFiles = [];
+            let completed = 0;
+
+            try {
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    const extension = file.name.split('.').pop();
+                    const newName = `${baseName} ${i + 1}.${extension}`;
+
+                    completed++;
+                    const progress = Math.round((completed / files.length) * 100);
+                    progressText.textContent = `Memproses... ${progress}%`;
+                    progressFill.style.width = `${progress}%`;
+
+                    const resultItem = document.createElement('div');
+                    resultItem.className = 'result-item';
+
+                    const downloadLink = document.createElement('a');
+                    const url = URL.createObjectURL(file);
+                    downloadLink.href = url;
+                    downloadLink.download = newName;
+                    downloadLink.textContent = `Unduh ${newName}`;
+                    downloadLink.innerHTML += '<div class="underline"></div>';
+                    resultItem.appendChild(downloadLink);
+
+                    resultContainer.appendChild(resultItem);
+                    renamedFiles.push({ blob: file, name: newName });
+                }
+
+                if (renamedFiles.length > 0) {
+                    downloadAllButton.classList.add('active');
+                    downloadAllFilesButton.classList.add('active');
+
+                    // Logika untuk Unduh Semua (ZIP)
+                    downloadAllButton.onclick = async () => {
+                        const zip = new JSZip();
+                        renamedFiles.forEach(file => {
+                            zip.file(file.name, file.blob);
+                        });
+
+                        const zipBlob = await zip.generateAsync({ type: 'blob' });
+                        const zipUrl = URL.createObjectURL(zipBlob);
+                        const zipLink = document.createElement('a');
+                        zipLink.href = zipUrl;
+                        zipLink.download = 'renamed_files.zip';
+                        zipLink.click();
+                        URL.revokeObjectURL(zipUrl);
+                    };
+
+                    // Logika untuk Unduh Semua File
+                    downloadAllFilesButton.onclick = () => {
+                        renamedFiles.forEach(file => {
+                            const url = URL.createObjectURL(file.blob);
+                            const link = document.createElement('a');
+                            link.href = url;
+                            link.download = file.name;
+                            link.click();
+                            URL.revokeObjectURL(url);
+                        });
+                    };
+                }
+            } catch (error) {
+                console.error('Kesalahan pemrosesan:', error);
+                alert('Terjadi kesalahan saat memproses satu atau lebih file. Silakan coba lagi.');
+            } finally {
+                progressContainer.classList.remove('active');
+                renameButton.classList.remove('disabled');
+            }
+        }
+
+        document.getElementById('renameButton').addEventListener('click', renameFiles);
+    </script>
+</body>
+</html>
